@@ -104,6 +104,11 @@ const osThreadAttr_t defaultTask_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 
+extern void ControlTask(void *argument);
+extern void ImuTask(void *argument);
+extern void ChassisTask(void *argument);
+extern void MotorUpdateTask(void *argument);
+
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -144,6 +149,7 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
+  motorUpdateSemHandle = osSemaphoreNew(1, 0, &motorUpdateSem_attributes);
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* USER CODE BEGIN RTOS_TIMERS */
@@ -160,10 +166,16 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  controlTaskHandle = osThreadNew(ControlTask, NULL, &controlTask_attributes);
+  imuTaskHandle = osThreadNew(ImuTask, NULL, &imuTask_attributes);
+  chassisTaskHandle = osThreadNew(ChassisTask, NULL, &chassisTask_attributes);
+  motorUpdateTaskHandle = osThreadNew(MotorUpdateTask, NULL, &motorUpdateTask_attributes);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
   /* add events, ... */
+  imuUpdateEventHandle = osEventFlagsNew(&imuUpdateEvent_attributes);
+  initEventHandle = osEventFlagsNew(&initEvent_attributes);
   /* USER CODE END RTOS_EVENTS */
 
 }

@@ -61,8 +61,10 @@ void Error_Handler(void);
 #define CS_Accel_GPIO_Port GPIOA
 #define INT_Accel_Pin GPIO_PIN_4
 #define INT_Accel_GPIO_Port GPIOC
+#define INT_Accel_EXTI_IRQn EXTI4_IRQn
 #define INT_Gyro_Pin GPIO_PIN_5
 #define INT_Gyro_GPIO_Port GPIOC
+#define INT_Gyro_EXTI_IRQn EXTI9_5_IRQn
 #define CS_Gyro_Pin GPIO_PIN_0
 #define CS_Gyro_GPIO_Port GPIOB
 

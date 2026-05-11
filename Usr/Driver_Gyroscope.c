@@ -18,7 +18,7 @@ static float          zAcc;
 static float          xMag;
 static float          yMag;
 static float          zMag;
-extern volatile float beta;
+volatile float beta;
 
 extern uint32_t ulHighFrequencyTimerTicks;
 

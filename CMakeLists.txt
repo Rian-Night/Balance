@@ -48,6 +48,7 @@ file(GLOB_RECURSE SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/FML/bmi088/*.c
         ${CMAKE_CURRENT_LIST_DIR}/FML/ekf/*.c
         ${CMAKE_CURRENT_LIST_DIR}/Usr/*.c
+        ${CMAKE_CURRENT_LIST_DIR}/Tasks/*.c
 )
 
 # Add sources to executable
@@ -63,6 +64,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/FML/bmi088
         ${CMAKE_CURRENT_LIST_DIR}/FML/ekf
         ${CMAKE_CURRENT_LIST_DIR}/Usr
+        ${CMAKE_CURRENT_LIST_DIR}/Tasks
 )
 
 # Add project symbols (macros)

@@ -9,6 +9,12 @@
 
 
 #define DBUS_UART huart3
+#define LEFT_SWITCH_TOP     (remoteHandle.switchLeft == 1)
+#define LEFT_SWITCH_MIDDLE  (remoteHandle.switchLeft == 3)
+#define LEFT_SWITCH_BOTTOM  (remoteHandle.switchLeft == 2)
+#define RIGHT_SWITCH_TOP    (remoteHandle.switchRight == 1)
+#define RIGHT_SWITCH_MIDDLE (remoteHandle.switchRight == 3)
+#define RIGHT_SWITCH_BOTTOM (remoteHandle.switchRight == 2)
 
 enum DBusState { RemoteIdle, RemoteWorking };
 typedef enum { OFF, ON } ButtonState;

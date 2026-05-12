@@ -3,6 +3,7 @@
  * Date: 2026/5/12.
  */
 
+#include "DBUS.h"
 #include "cmsis_os2.h"
 #include "config.h"
 #include "can.h"
@@ -31,6 +32,9 @@ void MotorUpdateTask(void *argument)
     for (size_t i = 0; i <6; i++)
     {
       /* code */
+      if(LEFT_SWITCH_TOP && RIGHT_SWITCH_TOP) {
+        DM_Motor_Command(&motors[i], Motor_Disable);
+      }
       DM_Motor_Control(&motors[i]);
     }
 

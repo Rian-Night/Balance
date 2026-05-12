@@ -61,7 +61,7 @@ DM_Motor_Type motors[6]={0};
 float DW_Left_Bias;
 float DW_Right_Bias;
 
-static setSendData(DM_Motor_Type motors[6], float T[6]){
+static void setSendData(DM_Motor_Type motors[6], float T[6]){
   motors[0].sendData.torque = -T[0];
   motors[1].sendData.torque = -T[1];
   motors[2].sendData.torque = T[2];
@@ -70,7 +70,7 @@ static setSendData(DM_Motor_Type motors[6], float T[6]){
   motors[5].sendData.torque = -T[5];
 }
 
-static receive2model(DM_Motor_Type motors[6]){
+static void receive2model(DM_Motor_Type motors[6]){
   uint8_t id;
   for(int i = 0; i < 2; ++i) {
     id = i;
@@ -108,8 +108,6 @@ void ChassisTask(void *argument)
 
   float legPos[2], legSpd[2];
 
-  float xd[6] = {0};
-  float x[6] = {0};
   float K[12] = {0};
   float u[2] = {0};
   float T_leg_L[2] = {0};
@@ -176,12 +174,12 @@ void ChassisTask(void *argument)
     lqr_k((leftLegPos.length + rightLegPos.length)/2.0f, K);
     for (uint8_t i = 0; i < 2; ++i)
     {
-      u[i] = K[i*6 + 0]*(xd[0] - x[0])
-      + K[i*6 + 1]*(xd[1] - x[1])
-      + K[i*6 + 2]*(xd[2] - x[2])
-      + K[i*6 + 3]*(xd[3] - x[3])
-      + K[i*6 + 4]*(xd[4] - x[4])
-      + K[i*6 + 5]*(xd[5] - x[5]);
+      u[i] = K[i*6 + 0]*(x[0])
+      + K[i*6 + 1]*(x[1])
+      + K[i*6 + 2]*(x[2])
+      + K[i*6 + 3]*(x[3])
+      + K[i*6 + 4]*(x[4])
+      + K[i*6 + 5]*(x[5]);
     }
 
     PID_Calculate(&DW_PID, 0, stateVar.phi);

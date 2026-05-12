@@ -76,8 +76,15 @@ void DM_Motor_Command(DM_Motor_Type *motor, uint8_t command) {
     CAN_TxHeaderTypeDef txHeader = {0};
     txHeader.DLC = 8;
     txHeader.StdId = motor->id;
+    uint32_t tick = HAL_GetTick();
     // Can_Send_Msg(CAN1, motor->id, sendbuff, 8);
-    HAL_CAN_AddTxMessage(&hcan2, &txHeader, sendbuff, NULL);
+    while(HAL_CAN_AddTxMessage(&hcan2, &txHeader, sendbuff, NULL) != HAL_OK){
+        if (HAL_GetTick() - tick > 500)
+        {
+            /* code */
+            break;
+        }
+    }
 }
 
 void DM_Motor_Read_Param(DM_Motor_Type *motor, uint8_t rid) {

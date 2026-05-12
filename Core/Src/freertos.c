@@ -62,7 +62,7 @@ const osThreadAttr_t controlTask_attributes = {
 osThreadId_t chassisTaskHandle;
 const osThreadAttr_t chassisTask_attributes = {
     .name = "chassisTask",
-    .stack_size = 100 * 4,
+    .stack_size = 100 * 8,
     .priority = (osPriority_t)osPriorityNormal,
 };
 
@@ -76,7 +76,7 @@ const osThreadAttr_t motorUpdateTask_attributes = {
 osThreadId_t vofaTaskHandle;
 const osThreadAttr_t vofaTask_attributes = {
     .name = "vofaTask",
-    .stack_size = 100 * 4,
+    .stack_size = 100 * 2,
     .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
@@ -99,7 +99,7 @@ const osEventFlagsAttr_t imuUpdateEvent_attributes = {
 };
 
 osEventFlagsId_t motorInitHandle;
-const osEventFlagsAttr_t initEvent_attributes = {
+const osEventFlagsAttr_t motorInitEvent_attributes = {
     .name = "motorInitHandle",
     .attr_bits = 0,
 };
@@ -190,7 +190,7 @@ void MX_FREERTOS_Init(void)
   /* add events, ... */
   imuUpdateEventHandle = osEventFlagsNew(&imuUpdateEvent_attributes);
   initEventHandle = osEventFlagsNew(&initEvent_attributes);
-  motorInitHandle = osEventFlagsNew(&imuUpdateEvent_attributes);
+  motorInitHandle = osEventFlagsNew(&motorInitEvent_attributes);
   /* USER CODE END RTOS_EVENTS */
 }
 

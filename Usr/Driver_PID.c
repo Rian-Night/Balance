@@ -34,7 +34,7 @@ float PID_Calculate(PID_Type *pid, float target, float feedback) {
     if (pid->maxOutput_I > 0) {
     MIAO(pid->output_I, -(pid->maxOutput_I), pid->maxOutput_I);
     }
-    
+
     pid->output_D = pid->d * (pid->error - pid->lastError);
 
     pid->output = (pid->output_P + pid->output_I + pid->output_D);
@@ -62,6 +62,6 @@ float PID_Increment_Calculate(PID_Type *pid, float target, float feedback) {
     return pid->output;
 }
 
-void PID_Print(PID_Type *pid) {
-    printf("PID(%f, %f, %d)\r\n", pid->target, pid->feedback, pid->output);
-}
+// void PID_Print(PID_Type *pid) {
+//     printf("PID(%f, %f, %d)\r\n", pid->target, pid->feedback, pid->output);
+// }

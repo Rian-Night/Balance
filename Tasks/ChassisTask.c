@@ -6,13 +6,13 @@
 #include "cmsis_os2.h"
 #include "config.h"
 #include "math.h"
-#include "motor_controller.h"
 #include "Driver_Gyroscope.h"
 #include "Driver_Vofa.h"
 #include "leg_conv.h"
 #include "leg_pos.h"
 #include "leg_spd.h"
 #include "lqr_k.h"
+#include "DM_Driver.h"
 
 //lf 1 lb 2 rf 3 rb 4 dl 5 dr 6
 #define Motor_LegLf_Bios  0
@@ -50,16 +50,18 @@ extern osEventFlagsId_t initEventHandle;
 
 extern volatile VofaData_type *VofaData;
 
+DM_Motor_Type motors[6];
+
 void ChassisTask(void *argument)
 {
   osEventFlagsWait(initEventHandle, init_mask, osFlagsWaitAll | osFlagsNoClear, osWaitForever);
 
-  motor_t * Motor_LegJoint_Lf = &motors[0];
-  motor_t * Motor_LegJoint_LB =&motors[1];
-  motor_t * Motor_LegJoint_RB =&motors[2];
-  motor_t * Motor_LegJoint_RF =&motors[3];
-  motor_t * DW_Left =&motors[4];
-  motor_t * DW_Right =&motors[5];
+  DM_Motor_Type * Motor_LegJoint_Lf = &motors[0];
+  DM_Motor_Type * Motor_LegJoint_LB =&motors[1];
+  DM_Motor_Type * Motor_LegJoint_RB =&motors[2];
+  DM_Motor_Type * Motor_LegJoint_RF =&motors[3];
+  DM_Motor_Type * DW_Left =&motors[4];
+  DM_Motor_Type * DW_Right =&motors[5];
 
   float legPos[2], legSpd[2];
 
@@ -76,15 +78,15 @@ void ChassisTask(void *argument)
 	target.rollAngle = 0.0f;
 	target.legLength = 0.07f;
 	target.speed = 0.0f;
-	target.position = DW_Left->position* DRIVE_WHEEL_RADIUS;
+	target.position = DW_Left->receiveData.p_des* DRIVE_WHEEL_RADIUS;
 
   while (1)
   {
     /* Usr code */
 
     /* update x */
-    phi1 = Motor_LegJoint_RF->position - Motor_LegLf_Bios;
-    phi4 = Motor_LegJoint_RB->position - Motor_LegLB_Bios;
+    phi1 = Motor_LegJoint_RF->receiveData.p_des - Motor_LegLf_Bios;
+    phi4 = Motor_LegJoint_RB->receiveData.p_des - Motor_LegLB_Bios;
 
     leg_pos(phi1, phi4, legPos);
     leftLegPos.length=legPos[0];
@@ -98,8 +100,8 @@ void ChassisTask(void *argument)
 		stateVar.dTheta = leftLegPos.dAngle  - Gyroscope_EulerData.pitchSpeed;
 		stateVar.phi = Gyroscope_EulerData.pitch;
 		stateVar.dPhi = Gyroscope_EulerData.pitchSpeed;
-		stateVar.x = DW_Left->position  * DRIVE_WHEEL_RADIUS;
-		stateVar.dx = DW_Left->velocity* DRIVE_WHEEL_RADIUS;
+		stateVar.x = DW_Left->receiveData.p_des  * DRIVE_WHEEL_RADIUS;
+		stateVar.dx = DW_Left->receiveData.v_des* DRIVE_WHEEL_RADIUS;
 
     float x[6] = {stateVar.theta, stateVar.dTheta, stateVar.x, stateVar.dx, stateVar.phi, stateVar.dPhi};
     /* update x end */

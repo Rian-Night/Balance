@@ -50,6 +50,7 @@ file(GLOB_RECURSE SOURCES
         ${CMAKE_CURRENT_LIST_DIR}/Usr/*.c
         ${CMAKE_CURRENT_LIST_DIR}/Tasks/*.c
         ${CMAKE_CURRENT_LIST_DIR}/BalanceModel/*.c
+        ${CMAKE_CURRENT_LIST_DIR}/FML/DM_Driver/*.c
 )
 
 # Add sources to executable
@@ -67,6 +68,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/Usr
         ${CMAKE_CURRENT_LIST_DIR}/Tasks
         ${CMAKE_CURRENT_LIST_DIR}/BalanceModel
+        ${CMAKE_CURRENT_LIST_DIR}/FML/DM_Driver
 )
 
 # Add project symbols (macros)

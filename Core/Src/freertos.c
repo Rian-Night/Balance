@@ -98,6 +98,12 @@ const osEventFlagsAttr_t imuUpdateEvent_attributes = {
     .attr_bits = 0,
 };
 
+osEventFlagsId_t motorInitHandle;
+const osEventFlagsAttr_t initEvent_attributes = {
+    .name = "motorInitHandle",
+    .attr_bits = 0,
+};
+
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -184,6 +190,7 @@ void MX_FREERTOS_Init(void)
   /* add events, ... */
   imuUpdateEventHandle = osEventFlagsNew(&imuUpdateEvent_attributes);
   initEventHandle = osEventFlagsNew(&initEvent_attributes);
+  motorInitHandle = osEventFlagsNew(&imuUpdateEvent_attributes);
   /* USER CODE END RTOS_EVENTS */
 }
 

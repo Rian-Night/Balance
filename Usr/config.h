@@ -9,12 +9,11 @@
 #define IMU_flag (1u << 0)
 #define control_flag (1u << 1)
 #define init_mask (IMU_flag | control_flag)
+#define motor_init_mask 0x3F
 
 #define accel_flag (1u << 0)
 #define gyro_flag (1u << 1)
 #define imu_mask (accel_flag | gyro_flag)
-
-#define  DRIVE_WHEEL_RADIUS 1
 
 #define GYROSCOPE_YAW_FILTER_Coefficient 0
 #define IMU_INIT_TIME 5000 // IMU初始化时间

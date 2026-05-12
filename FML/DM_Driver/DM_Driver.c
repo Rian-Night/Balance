@@ -27,10 +27,17 @@ int float_to_uint(float X_float, float X_min, float X_max, int bits) {
     return (int) ((X_float - offset) * ((float) ((1 << bits) - 1)) / span);
 }
 
-void DM_Motor_Init(DM_Motor_Type *motor, uint8_t mode, uint8_t id, uint8_t inputEnabled) {
+float uint_to_float(uint16_t x, float x_min, float x_max, uint8_t bits) {
+    float span = x_max - x_min;
+    uint32_t max_int = (1UL << bits) - 1UL;
+    return ((float)x) * span / (float)max_int + x_min;
+}
+
+void DM_Motor_Init(DM_Motor_Type *motor, uint8_t mode, uint8_t id, uint8_t inputEnabled, uint8_t MultiCycleEnabled) {
     motor->mode         = mode;
     motor->id           = id;
     motor->inputEnabled = inputEnabled;
+    motor->MultiCycleEnabled = MultiCycleEnabled;
 
     if (motor->inputEnabled) {
         DM_Motor_Command(motor, Motor_Enble);
@@ -40,14 +47,14 @@ void DM_Motor_Init(DM_Motor_Type *motor, uint8_t mode, uint8_t id, uint8_t input
 }
 
 void DM_Motor_PID_Init(DM_Motor_Type *motor, float kp, float kd) {
-    motor->kp = kp;
-    motor->kd = kd;
+    motor->sendData.kp = kp;
+    motor->sendData.kd = kd;
 }
 
 void DM_Motor_Input(DM_Motor_Type *motor, float p_des, float v_des, float torque) {
-    motor->p_des  = p_des;
-    motor->v_des  = v_des;
-    motor->torque = torque;
+    motor->sendData.p_des  = p_des;
+    motor->sendData.v_des  = v_des;
+    motor->sendData.torque = torque;
 }
 
 void DM_Motor_Command(DM_Motor_Type *motor, uint8_t command) {
@@ -124,15 +131,16 @@ float DM_Motor_Param_Float_From_Rx(const uint8_t rx_data[8]) {
 
 void DM_Motor_Control(DM_Motor_Type *motor) {
     uint8_t sendbuff[8];
+    uint32_t id = motor->id;
 
     if (motor->mode == MODE_MIT) {
         uint16_t Position_Tmp, Velocity_Tmp, Torque_Tmp, KP_Tmp, KD_Tmp;
 
-        Position_Tmp = float_to_uint(motor->p_des, DM_MIT_P_MIN, DM_MIT_P_MAX, 16);
-        Velocity_Tmp = float_to_uint(motor->v_des, DM_MIT_V_MIN, DM_MIT_V_MAX, 12);
-        Torque_Tmp   = float_to_uint(motor->torque, DM_MIT_T_MIN, DM_MIT_T_MAX, 12);
-        KP_Tmp       = float_to_uint(motor->kp, DM_MIT_KP_MIN, DM_MIT_KP_MAX, 12);
-        KD_Tmp       = float_to_uint(motor->kd, DM_MIT_KD_MIN, DM_MIT_KD_MAX, 12);
+        Position_Tmp = float_to_uint(motor->sendData.p_des, DM_MIT_P_MIN, DM_MIT_P_MAX, 16);
+        Velocity_Tmp = float_to_uint(motor->sendData.v_des, DM_MIT_V_MIN, DM_MIT_V_MAX, 12);
+        Torque_Tmp   = float_to_uint(motor->sendData.torque, DM_MIT_T_MIN, DM_MIT_T_MAX, 12);
+        KP_Tmp       = float_to_uint(motor->sendData.kp, DM_MIT_KP_MIN, DM_MIT_KP_MAX, 12);
+        KD_Tmp       = float_to_uint(motor->sendData.kd, DM_MIT_KD_MIN, DM_MIT_KD_MAX, 12);
 
         sendbuff[0] = (uint8_t) (Position_Tmp >> 8);
         sendbuff[1] = (uint8_t) (Position_Tmp);
@@ -143,8 +151,50 @@ void DM_Motor_Control(DM_Motor_Type *motor) {
         sendbuff[6] = (uint8_t) ((KD_Tmp & 0x0F) << 4) | (Torque_Tmp >> 8);
         sendbuff[7] = (uint8_t) (Torque_Tmp);
     }
+    uint32_t tick = HAL_GetTick();
     CAN_TxHeaderTypeDef txHeader = {0};
     txHeader.DLC = 8;
     txHeader.StdId = motor->id;
-    if (motor->inputEnabled) HAL_CAN_AddTxMessage(&hcan2, &txHeader, sendbuff, NULL);
+    if (motor->inputEnabled) {
+        while(HAL_CAN_AddTxMessage(&hcan2, &txHeader, sendbuff, NULL) != HAL_OK){
+            if (HAL_GetTick() - tick > 500)
+            {
+                /* code */
+                break;
+            }
+
+        }
+    }
+}
+
+
+void DM_Motor_Parse_Feedback(DM_Motor_Type *motor, const uint8_t data[8]){
+
+    uint32_t id = motor->id;
+
+    motor->status = data[0] >> 4;
+
+    uint16_t p_int = ((uint16_t)data[1] << 8) | data[2];
+    uint16_t v_int = ((uint16_t)data[3] << 4) | (data[4] >> 4);
+    uint16_t t_int = (((uint16_t)data[4] & 0x0FU) << 8) | data[5];
+
+    float tmp = uint_to_float(p_int, DM_MIT_P_MIN, DM_MIT_P_MAX, 16) + DM_MIT_P_MAX;
+    if(motor->MultiCycleEnabled && motor->firstTime){
+        if(tmp - motor->receiveData.p_des <= DM_MIT_P_MIN){
+            motor->cnt++;
+        }else if(tmp - motor->receiveData.p_des > DM_MIT_KD_MAX){
+            motor->cnt--;
+        }
+        motor->receiveData.p_des = tmp + motor->cnt * 2 * DM_MIT_P_MAX;
+    }else{
+        motor->receiveData.p_des = tmp;
+        motor->firstTime = 1;
+    }
+    motor->receiveData.v_des = uint_to_float(v_int, DM_MIT_V_MIN, DM_MIT_V_MAX, 12);
+    motor->receiveData.torque = uint_to_float(t_int, DM_MIT_T_MIN, DM_MIT_T_MAX, 12);
+}
+
+void DM_Motor_Set_Bias(DM_Motor_Type *motor, const float Bias){
+    motor->bias = Bias;
+    motor->receiveData.p_des -= Bias;
 }

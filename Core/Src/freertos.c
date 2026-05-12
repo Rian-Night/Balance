@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * File Name          : freertos.c
-  * Description        : Code for freertos applications
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2026 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * File Name          : freertos.c
+ * Description        : Code for freertos applications
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2026 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -47,58 +47,64 @@
 /* USER CODE BEGIN Variables */
 osThreadId_t imuTaskHandle;
 const osThreadAttr_t imuTask_attributes = {
-  .name = "imuTask",
-  .stack_size = 100 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal,
+    .name = "imuTask",
+    .stack_size = 100 * 4,
+    .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
 osThreadId_t controlTaskHandle;
 const osThreadAttr_t controlTask_attributes = {
-  .name = "controlTask",
-  .stack_size = 100 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal,
+    .name = "controlTask",
+    .stack_size = 100 * 4,
+    .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
 osThreadId_t chassisTaskHandle;
 const osThreadAttr_t chassisTask_attributes = {
-  .name = "chassisTask",
-  .stack_size = 100 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "chassisTask",
+    .stack_size = 100 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 
 osThreadId_t motorUpdateTaskHandle;
 const osThreadAttr_t motorUpdateTask_attributes = {
-  .name = "motorUpdateTask",
-  .stack_size = 100 * 4,
-  .priority = (osPriority_t) osPriorityAboveNormal,
+    .name = "motorUpdateTask",
+    .stack_size = 100 * 4,
+    .priority = (osPriority_t)osPriorityAboveNormal,
+};
+
+osThreadId_t vofaTask;
+const osThreadAttr_t vofaTask_attributes = {
+    .name = "vofaTask",
+    .stack_size = 100 * 4,
+    .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
 osSemaphoreId_t motorUpdateSemHandle;
 const osSemaphoreAttr_t motorUpdateSem_attributes = {
-  .name = "motorUpdateSem",
-  .attr_bits = 0,
+    .name = "motorUpdateSem",
+    .attr_bits = 0,
 };
 
 osEventFlagsId_t initEventHandle;
 const osEventFlagsAttr_t initEvent_attributes = {
-  .name = "initEvent",
-  .attr_bits = 0,
+    .name = "initEvent",
+    .attr_bits = 0,
 };
 
 osEventFlagsId_t imuUpdateEventHandle;
 const osEventFlagsAttr_t imuUpdateEvent_attributes = {
-  .name = "imuUpdateEvent",
-  .attr_bits = 0,
+    .name = "imuUpdateEvent",
+    .attr_bits = 0,
 };
-
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name = "defaultTask",
+    .stack_size = 128 * 4,
+    .priority = (osPriority_t)osPriorityNormal,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,6 +114,7 @@ extern void ControlTask(void *argument);
 extern void ImuTask(void *argument);
 extern void ChassisTask(void *argument);
 extern void MotorUpdateTask(void *argument);
+extern void VofaTask(void *argument);
 
 /* USER CODE END FunctionPrototypes */
 
@@ -124,21 +131,21 @@ unsigned long getRunTimeCounterValue(void);
 /* Functions needed when configGENERATE_RUN_TIME_STATS is on */
 __weak void configureTimerForRunTimeStats(void)
 {
-
 }
 
 __weak unsigned long getRunTimeCounterValue(void)
 {
-return 0;
+  return 0;
 }
 /* USER CODE END 1 */
 
 /**
-  * @brief  FreeRTOS initialization
-  * @param  None
-  * @retval None
-  */
-void MX_FREERTOS_Init(void) {
+ * @brief  FreeRTOS initialization
+ * @param  None
+ * @retval None
+ */
+void MX_FREERTOS_Init(void)
+{
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -170,6 +177,7 @@ void MX_FREERTOS_Init(void) {
   imuTaskHandle = osThreadNew(ImuTask, NULL, &imuTask_attributes);
   chassisTaskHandle = osThreadNew(ChassisTask, NULL, &chassisTask_attributes);
   motorUpdateTaskHandle = osThreadNew(MotorUpdateTask, NULL, &motorUpdateTask_attributes);
+  vofaTaskHandle = osThreadNew(VofaTask, NULL, &vofaTask_attributes);
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -177,15 +185,14 @@ void MX_FREERTOS_Init(void) {
   imuUpdateEventHandle = osEventFlagsNew(&imuUpdateEvent_attributes);
   initEventHandle = osEventFlagsNew(&initEvent_attributes);
   /* USER CODE END RTOS_EVENTS */
-
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
 /**
-  * @brief  Function implementing the defaultTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
+ * @brief  Function implementing the defaultTask thread.
+ * @param  argument: Not used
+ * @retval None
+ */
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
@@ -204,4 +211,3 @@ void StartDefaultTask(void *argument)
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
-

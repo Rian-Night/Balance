@@ -73,7 +73,7 @@ const osThreadAttr_t motorUpdateTask_attributes = {
     .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
-osThreadId_t vofaTask;
+osThreadId_t vofaTaskHandle;
 const osThreadAttr_t vofaTask_attributes = {
     .name = "vofaTask",
     .stack_size = 100 * 4,

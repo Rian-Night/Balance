@@ -102,6 +102,8 @@ extern "C"
      */
     motor_t *motor_get(uint8_t motor_id);
 
+    can_status_t send_mit_control(uint8_t motor_id, float p, float v, float kp, float kd, float torque);
+
 #ifdef __cplusplus
 }
 #endif

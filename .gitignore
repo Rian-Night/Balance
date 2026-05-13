@@ -1,6 +1,6 @@
 cmake-*
 .idea
 .vscode
-build
+./build
 .clangd
 .settings

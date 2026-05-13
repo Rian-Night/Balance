@@ -48,7 +48,7 @@
 osThreadId_t imuTaskHandle;
 const osThreadAttr_t imuTask_attributes = {
     .name = "imuTask",
-    .stack_size = 100 * 4,
+    .stack_size = 100 * 16,
     .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
@@ -62,21 +62,21 @@ const osThreadAttr_t controlTask_attributes = {
 osThreadId_t chassisTaskHandle;
 const osThreadAttr_t chassisTask_attributes = {
     .name = "chassisTask",
-    .stack_size = 100 * 8,
+    .stack_size = 100 * 32,
     .priority = (osPriority_t)osPriorityNormal,
 };
 
 osThreadId_t motorUpdateTaskHandle;
 const osThreadAttr_t motorUpdateTask_attributes = {
     .name = "motorUpdateTask",
-    .stack_size = 100 * 4,
+    .stack_size = 100 * 8,
     .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
 osThreadId_t vofaTaskHandle;
 const osThreadAttr_t vofaTask_attributes = {
     .name = "vofaTask",
-    .stack_size = 100 * 2,
+    .stack_size = 100 * 4,
     .priority = (osPriority_t)osPriorityAboveNormal,
 };
 
@@ -108,9 +108,9 @@ const osEventFlagsAttr_t motorInitEvent_attributes = {
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-    .name = "defaultTask",
-    .stack_size = 128 * 4,
-    .priority = (osPriority_t)osPriorityNormal,
+  .name = "defaultTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -146,12 +146,11 @@ __weak unsigned long getRunTimeCounterValue(void)
 /* USER CODE END 1 */
 
 /**
- * @brief  FreeRTOS initialization
- * @param  None
- * @retval None
- */
-void MX_FREERTOS_Init(void)
-{
+  * @brief  FreeRTOS initialization
+  * @param  None
+  * @retval None
+  */
+void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
 
   /* USER CODE END Init */
@@ -192,6 +191,7 @@ void MX_FREERTOS_Init(void)
   initEventHandle = osEventFlagsNew(&initEvent_attributes);
   motorInitHandle = osEventFlagsNew(&motorInitEvent_attributes);
   /* USER CODE END RTOS_EVENTS */
+
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -207,10 +207,10 @@ void StartDefaultTask(void *argument)
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
   /* Infinite loop */
-  // for(;;)
-  // {
-  //   osDelay(1);
-  // }
+  for(;;)
+  {
+    osDelay(1000);
+  }
   /* USER CODE END StartDefaultTask */
 }
 
@@ -218,3 +218,4 @@ void StartDefaultTask(void *argument)
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
+

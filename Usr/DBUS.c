@@ -19,6 +19,7 @@ void DBUS_Init()
 {
   remote_init();
   HAL_UARTEx_ReceiveToIdle_DMA(&DBUS_UART, remoteBuffer, sizeof(remoteBuffer));
+  __HAL_DMA_DISABLE_IT(DBUS_UART.hdmarx, DMA_IT_HT);
 }
 
 static void remote_update()
@@ -43,6 +44,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
   if (huart->Instance == DBUS_UART.Instance)
   {
     if (Size == REMOTE_LENGTH) remote_update();
-    HAL_UARTEx_ReceiveToIdle_DMA(huart, huart->pRxBuffPtr, (REMOTE_LENGTH + REMOTE_BACK_LENGTH));
+    HAL_UARTEx_ReceiveToIdle_DMA(huart, remoteBuffer, (REMOTE_LENGTH + REMOTE_BACK_LENGTH));
+    __HAL_DMA_DISABLE_IT(huart->hdmarx, DMA_IT_HT);
   }
 }

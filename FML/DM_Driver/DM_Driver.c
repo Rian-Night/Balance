@@ -42,7 +42,8 @@ void DM_Motor_Init(DM_Motor_Type *motor, uint8_t mode, uint8_t id, uint8_t input
     if (motor->inputEnabled) {
         DM_Motor_Command(motor, Motor_Enble);
 
-        DM_Motor_Write_Param_U32(motor, 0x0A, 0x01);
+        DM_Motor_Write_Param_U32(motor, 0x07, id|=0x10);
+        DM_Motor_Save_Param(motor);
     }
 }
 
@@ -76,9 +77,13 @@ void DM_Motor_Command(DM_Motor_Type *motor, uint8_t command) {
     CAN_TxHeaderTypeDef txHeader = {0};
     txHeader.DLC = 8;
     txHeader.StdId = motor->id;
+    txHeader.IDE = CAN_ID_STD;
+    txHeader.RTR = CAN_RTR_DATA;
+    txHeader.ExtId = 0;
     uint32_t tick = HAL_GetTick();
+    uint32_t mailbox = 0;
     // Can_Send_Msg(CAN1, motor->id, sendbuff, 8);
-    while(HAL_CAN_AddTxMessage(&hcan2, &txHeader, sendbuff, NULL) != HAL_OK){
+    while(HAL_CAN_AddTxMessage(&hcan2, &txHeader, sendbuff, &mailbox) != HAL_OK){
         if (HAL_GetTick() - tick > 500)
         {
             /* code */
@@ -159,11 +164,15 @@ void DM_Motor_Control(DM_Motor_Type *motor) {
         sendbuff[7] = (uint8_t) (Torque_Tmp);
     }
     uint32_t tick = HAL_GetTick();
+    uint32_t mailbox = 0;
     CAN_TxHeaderTypeDef txHeader = {0};
     txHeader.DLC = 8;
     txHeader.StdId = motor->id;
+    txHeader.IDE = CAN_ID_STD;
+    txHeader.RTR = CAN_RTR_DATA;
+    txHeader.ExtId = 0;
     if (motor->inputEnabled) {
-        while(HAL_CAN_AddTxMessage(&hcan2, &txHeader, sendbuff, NULL) != HAL_OK){
+        while(HAL_CAN_AddTxMessage(&hcan2, &txHeader, sendbuff, &mailbox) != HAL_OK){
             if (HAL_GetTick() - tick > 500)
             {
                 /* code */

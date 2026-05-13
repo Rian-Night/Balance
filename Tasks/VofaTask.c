@@ -33,6 +33,6 @@ extern void VofaTask(void *argument)
     {
         HAL_UART_Transmit_DMA(&huart6, DebugBuffer.data, ProtocolBufferLength);
 
-        osDelayUntil(100);
+        osDelay(100);
     }
 }

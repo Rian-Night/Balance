@@ -16,7 +16,7 @@
 #define imu_mask (accel_flag | gyro_flag)
 
 #define GYROSCOPE_YAW_FILTER_Coefficient 0
-#define IMU_INIT_TIME 5000 // IMU初始化时间
+#define IMU_INIT_TIME 50 // IMU初始化时间
 #define fastTriangle 1     // 快速三角函数计算，仅用于imu解算，且下列三个角度必须为PI/2的倍数
 #define angle_x 0          // 内旋，先绕x轴旋转角度（rad）
 #define angle_y 0          // 内旋，再绕y轴旋转角度（rad）

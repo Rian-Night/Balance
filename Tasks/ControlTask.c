@@ -12,13 +12,13 @@ void ControlTask(void *argument)
 {
   DBUS_Init();
   while (remoteHandle.state != RemoteWorking)
-    osDelayUntil(100);
+    osDelay(100);
   osEventFlagsSet(initEventHandle, control_flag);
   while (1)
   {
     /* Usr code */
 
     /* End */
-    osDelayUntil(100);
+    osDelay(100);
   }
 }

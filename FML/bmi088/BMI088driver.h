@@ -45,8 +45,8 @@
 #define BMI088_ACCEL_SEN BMI088_ACCEL_3G_SEN
 #define BMI088_GYRO_SEN BMI088_GYRO_2000_SEN
 
-#define ACCELERATE_FREQ BMI088_ACC_800_HZ
-#define GYROSCOPE_FREQ BMI088_GYRO_1000_116_HZ
+#define ACCELERATE_FREQ BMI088_ACC_200_HZ
+#define GYROSCOPE_FREQ BMI088_GYRO_200_23_HZ
 
 #define BMI088_accel_write_single_reg(reg, data)                                                                                                               \
     {                                                                                                                                                          \
